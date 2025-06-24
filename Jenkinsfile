@@ -15,19 +15,34 @@ pipeline {
 
     stage('Build Java App') {
       steps {
-        sh 'mvn clean package'
+        dir('myapp') {
+          sh 'mvn clean package'
+        }
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $IMAGE_NAME .'
+        dir('myapp') {
+          sh 'docker build -t $IMAGE_NAME .'
+        }
       }
     }
 
     stage('Scan with Trivy') {
       steps {
-        sh 'trivy image -f json -o trivy-report.json $IMAGE_NAME'
+        dir('myapp') {
+          sh 'mkdir -p $TMPDIR'
+          sh 'export TMPDIR=$TMPDIR && trivy image -f json -o trivy-report.json $IMAGE_NAME'
+        }
+      }
+    }
+
+    stage('Archive Trivy Report') {
+      steps {
+        dir('myapp') {
+          archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
+        }
       }
     }
   }
@@ -38,3 +53,4 @@ pipeline {
     }
   }
 }
+
