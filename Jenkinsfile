@@ -17,6 +17,7 @@ pipeline {
       steps {
         dir('myapp') {
           sh 'mvn clean package'
+          sh 'cp target/myapp-1.0-SNAPSHOT.jar target/myapp.jar'  // rename
         }
       }
     }
