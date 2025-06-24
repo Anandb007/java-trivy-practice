@@ -32,12 +32,18 @@ pipeline {
       }
     }
 
-
     stage('Scan with Trivy') {
       steps {
         dir('myapp') {
-          sh 'mkdir -p $TMPDIR'
-          sh 'export TMPDIR=$TMPDIR && trivy image -f json -o trivy-report.json $IMAGE_NAME'
+          sh '''
+            mkdir -p $TMPDIR
+            echo "Scanning with Trivy..."
+            trivy image --no-progress $IMAGE_NAME > trivy-report.txt
+
+            echo "<html><body><h2>Trivy Vulnerability Report</h2><pre>" > trivy-report.html
+            cat trivy-report.txt >> trivy-report.html
+            echo "</pre></body></html>" >> trivy-report.html
+          '''
         }
       }
     }
@@ -45,7 +51,7 @@ pipeline {
     stage('Archive Trivy Report') {
       steps {
         dir('myapp') {
-          archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
+          archiveArtifacts artifacts: 'trivy-report.html', fingerprint: true
         }
       }
     }
