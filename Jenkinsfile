@@ -24,13 +24,13 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         dir('myapp') {
-          // Show the structure for debugging
-         // sh 'ls -l target/'
-          // Build the Docker image using the local Dockerfile
+          sh 'ls -lh target/'
+          sh 'test -f target/myapp.jar || (echo "JAR file not found!" && exit 1)'
           sh 'docker build -t $IMAGE_NAME .'
         }
       }
     }
+
 
     stage('Scan with Trivy') {
       steps {
