@@ -24,6 +24,9 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         dir('myapp') {
+          // Show the structure for debugging
+         // sh 'ls -l target/'
+          // Build the Docker image using the local Dockerfile
           sh 'docker build -t $IMAGE_NAME .'
         }
       }
